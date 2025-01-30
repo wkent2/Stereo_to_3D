@@ -28,7 +28,7 @@ def parseargs():
     p.add_argument('micros_2D',help="Path to .csv file containing microstruture characteristics")
     p.add_argument("-a","-architecture", type=str, default='d128,d64', help="Architecture string")
     p.add_argument("-lf","-loss_fn",type=str,default="MSE")
-    p.add_argument("-pin","-params_in",type=int,nargs='+',default=[0,1,2,3,4,5,6,7,8,9,10,11,12],help='Column indexes for characteristics to train on. Should be formatted as a list of integers seperated by a single space ' '.')
+    p.add_argument("-pin","-params_in",type=int,nargs='+',default=[0,1,2,3,4,5,6,7,8,9],help='Column indexes for characteristics to train on. Should be formatted as a list of integers seperated by a single space ' '.')
     p.add_argument("-pout","-params_out",type=int,nargs='+',default=[0,1,2,3,4,5,6,7,8,9,10,11,12],help='Column indexes for characteristics to train on. Should be formatted as a list of integers seperated by a single space ' '.')
     p.add_argument("-g","-gamma",type=float,default=0.9)
 
