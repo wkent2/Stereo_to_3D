@@ -1,0 +1,9 @@
+#!/bin/bash -l
+#SBATCH --job-name='old_davgs'
+#SBATCH --nodes=1
+#SBATCH --partition=gpu
+#SBATCH --qos=gpu
+
+conda activate PTL
+python ./stereo_to_3D.py "./micros/248_3D_VOXEL_FANCY.csv" "./D3D_2D_micro_res_micron.csv" 
+wait
