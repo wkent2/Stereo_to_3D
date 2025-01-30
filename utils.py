@@ -41,13 +41,19 @@ def create_training_data_array(target_p,input_p,in_param,out_param):
 
     target_data = np.zeros(shape=(len(input_df),len(out_param)),dtype=np.float32)
 
+    # Removes file extension from data frame indexes
+    input_df.index = df.index.str.replace(r'\.\w+$', '', regex=True)
+
+    # Removes file extension from data frame indexes
+    target_df.index = df.index.str.replace(r'\.\w+$', '', regex=True)
+
     print("Making training dataset")
     for i in tqdm(range(len(input_df))):
         index_of_row = input_df.index[i]
         for j in range(len(in_param)):
             input_data[i,j] = input_df[input_df.keys()[in_param[j]]][index_of_row]
         for j in range(len(out_param)): 
-            ind_npy = index_of_row[0:-6] + '.npy'
+            ind_npy = index_of_row[0:-2]
             target_data[i,j] = target_df[target_df.keys()[out_param[j]]][ind_npy]
 
 
