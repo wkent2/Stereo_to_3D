@@ -1,9 +1,9 @@
 #!/bin/bash -l
-#SBATCH --job-name='old_davgs'
+#SBATCH --job-name='ANN_1_extrad'
 #SBATCH --nodes=1
 #SBATCH --partition=gpu
 #SBATCH --qos=gpu
 
 conda activate PTL
-python ./stereo_to_3D.py "./micros/248_3D_VOXEL_FANCY.csv" "./D3D_2D_micro_res_micron.csv" 
+python ./stereo_to_3D.py "./micros/248_conn_LOG_STD.csv" "./micros/248_stereo_LOG_STD.csv" -pin 0 1 2 3 4 5 6 7 8 9 10 11 12 -pout 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 -g 1.0 -a "d128,d128,d128"
 wait

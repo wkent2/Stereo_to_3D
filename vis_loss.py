@@ -43,7 +43,7 @@ def average_values_by_key(list1, list2):
 
 
 
-DIR_PATH = './results/lightning_logs/version_17'
+DIR_PATH = './results/lightning_logs/version_6'
 
 data = pd.read_csv(os.path.join(DIR_PATH,'metrics.csv'),header=0)
 
@@ -54,14 +54,14 @@ train_loss_step = []
 epoch_step = []
 
 for i in range(len(data)):
-    if math.isnan(data['train_loss_epoch'][i]) != True:
+    if math.isnan(data['train_loss'][i]) != True:
         epochs.append(data['epoch'][i])
-        train_loss.append(data['train_loss_epoch'][i])
-    if math.isnan(data['val_loss_epoch'][i]) != True:
-        val_loss.append(data['val_loss_epoch'][i])
-    if math.isnan(data['train_loss_step'][i]) != True:
-        train_loss_step.append(data['train_loss_step'][i])
-        epoch_step.append(data['epoch'][i])
+        train_loss.append(data['train_loss'][i])
+    if math.isnan(data['val_loss'][i]) != True:
+        val_loss.append(data['val_loss'][i])
+    #if math.isnan(data['train_loss_step'][i]) != True:
+     #   train_loss_step.append(data['train_loss_step'][i])
+      #  epoch_step.append(data['epoch'][i])
         
 
 epochs_2,train_loss_2 = average_values_by_key(train_loss_step,epoch_step)
@@ -74,14 +74,14 @@ plt.close('all')
 plt.figure(figsize=(12,5))
 
 plt.subplot(1,2,1)
-plt.plot(epochs_2[start_index:],train_loss_2[start_index:],color='blue',label='Train')
+plt.plot(epochs[start_index:],train_loss[start_index:],color='blue',label='Train')
 plt.plot(epochs[start_index:],val_loss[start_index:],color='green',label='Validation')
 plt.xlabel('Epoch',fontsize=12)
 plt.ylabel('MSE',fontsize=12)
 plt.legend()
 
 plt.subplot(1,2,2)
-plt.plot(epochs_2[start_index:],train_loss_2[start_index:],color='blue',label='Train')
+plt.plot(epochs[start_index:],train_loss[start_index:],color='blue',label='Train')
 plt.plot(epochs[start_index:],val_loss[start_index:],color='green',label='Validation')
 plt.xlabel('Epoch',fontsize=12)
 plt.ylabel('MSE',fontsize=12)

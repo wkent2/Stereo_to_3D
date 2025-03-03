@@ -73,7 +73,7 @@ class stereo_to_3D(L.LightningModule):
         
         y_hat = self(x)
         loss = F.mse_loss(y_hat.flatten(), y.flatten())
-        self.log('train_loss', loss,on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log('train_loss', loss, on_epoch=True, on_step=False,prog_bar=True, logger=True,sync_dist=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -82,7 +82,7 @@ class stereo_to_3D(L.LightningModule):
         y_hat = self(x)
         
         val_loss = F.mse_loss(y_hat.flatten(), y.flatten())
-        self.log('val_loss', val_loss,on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_loss', val_loss, on_epoch=True, on_step=False,prog_bar=True, logger=True,sync_dist=True)
         return val_loss
 
     def configure_optimizers(self):
@@ -142,7 +142,7 @@ def main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_s
         default_root_dir='./results',
         max_epochs=n_epochs,
         # set this to auto when GPU available
-        accelerator="mps",
+        accelerator="auto",
         deterministic=True,
         callbacks=[
             TQDMProgressBar(),
@@ -178,6 +178,6 @@ if __name__ == '__main__':
     loss_func = args.lf
     gamma = args.g
 
-main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,n_epochs,do_soft)
+    main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,n_epochs,do_soft)
 
 

@@ -180,8 +180,6 @@ class surrogate_arch_mod(Module):
     def forward(self, x):
         x = self.network(x)
 
-        x[:, :3] = Softmax(dim=1)(x[:, :3])
-
         return x
 
 
