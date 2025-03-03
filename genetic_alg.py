@@ -62,7 +62,8 @@ def fitness(architecture_str, train_dataloader=None, val_dataloader=None):
     # if on Joule
     trainer = pl.Trainer(max_epochs=EPOCHS, 
                             accelerator="auto",
-                            strategy=pl.strategies.DDPStrategy(find_unused_parameters=False),
+                            # strategy=pl.strategies.DDPStrategy(find_unused_parameters=False),
+                            strategy="ddp",
                             enable_progress_bar=True)
     # trainer.fit(model, train_dataloader, val_dataloader)
     trainer.fit(model)
@@ -105,7 +106,9 @@ def genetic_algorithm():
         np.save(savename,np.array(population))
         
         # Evaluate fitness
-        fitness_scores = [fitness(arch) for arch in population]
+        fitness_scores = []
+        for arch in population:
+            fitness_scores.append(fitness(arch))
         
         # Select the best architectures (elitism)
         sorted_population = [arch for _, arch in sorted(zip(fitness_scores, population), reverse=True)]
