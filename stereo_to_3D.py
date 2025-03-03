@@ -104,11 +104,11 @@ class stereo_to_3D(L.LightningModule):
 
     def train_dataloader(self):
         # Training data loader
-        return DataLoader(self.train_dataset, batch_size=self.b_size,shuffle=True)
+        return DataLoader(self.train_dataset, batch_size=self.b_size,shuffle=True,num_workers=2)
 
     def val_dataloader(self):
         # Validation data loader
-        return DataLoader(self.val_dataset, batch_size=self.b_size)
+        return DataLoader(self.val_dataset, batch_size=self.b_size,num_workers=2)
 
 
 def main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,n_epochs,do_soft):

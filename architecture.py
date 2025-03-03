@@ -166,10 +166,13 @@ class surrogate_arch_mod(Module):
 
         layers.add_module('Input',Linear(inparams,layer_params[0][1]))
 
-        for i in range(1,len(layer_params)):
+        if len(layer_params)>1:
+            for i in range(1,len(layer_params)):
 
-            layers.add_module(names[i],Linear(layer_params[i-1][1],layer_params[i][1]))
-            layers.add_module(names[i]+'_ReLu',ReLU())
+                layers.add_module(names[i],Linear(layer_params[i-1][1],layer_params[i][1]))
+                layers.add_module(names[i]+'_ReLu',ReLU())
+        else:
+            i = 0
 
         layers.add_module("Output",Linear(layer_params[i][1],outparams))
  
