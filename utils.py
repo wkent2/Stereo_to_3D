@@ -24,8 +24,8 @@ class SurrogateDataset(Dataset):
 
     def __getitem__(self, idx):
 
-        targets = torch.tensor(self.input_vals[idx])
-        inputs = torch.tensor(self.target_vals[idx])
+        inputs = torch.tensor(self.input_vals[idx])
+        targets = torch.tensor(self.target_vals[idx])
 
         if self.swap:
             perm = np.random.permutation(3)
@@ -50,7 +50,6 @@ class SurrogateDataset(Dataset):
         perm_map = {label_map[old]: label_map[new] for old, new in zip((0,1,2), perm.tolist())}
 
         # Flip the OUTPUT microstructure characteristics
-
         # Extract groups from out_micros
         out_first_group = out_micros[0:3]
         out_second_group = out_micros[3:6]
@@ -90,7 +89,7 @@ class SurrogateDataset(Dataset):
         in_first_group = in_micros[0:3] # VFs
         in_relation_group = in_micros[3:6] # ISAs
         in_second_group = in_micros[6:9] # davgs
-        in_third_group = [in_micros[10]] # TPB
+        in_third_group = in_micros[9] # TPB
         
 
         # Permute the first three groups based on new label order
@@ -119,7 +118,7 @@ class SurrogateDataset(Dataset):
         in_permuted_relation = in_relation_group[p_order]
 
         output_perm = torch.cat([out_permuted_first, out_permuted_second, out_permuted_third, out_fourth_group, out_permuted_relation])
-        input_perm = torch.cat([in_permuted_first, in_permuted_relation,in_permuted_second, in_permuted_third])
+        input_perm = torch.cat([in_permuted_first, in_permuted_relation,in_permuted_second, in_third_group.unsqueeze(0)])
 
         # Concatenate all modified groups
         return input_perm,output_perm
@@ -149,7 +148,7 @@ def create_training_data_array(target_p,input_p,in_param,out_param):
             input_data[i,j] = input_df[input_df.keys()[in_param[j]]][index_of_row]
         for j in range(len(out_param)): 
             ind_npy = index_of_row[0:-2]
-            
+
             target_data[i,j] = target_df[target_df.keys()[out_param[j]]][ind_npy]
 
 

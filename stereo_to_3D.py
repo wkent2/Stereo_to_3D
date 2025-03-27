@@ -147,7 +147,7 @@ def main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_s
         max_epochs=n_epochs,
         # set this to auto when GPU available
         accelerator="auto",
-        strategy=L.strategies.DDPStrategy(find_unused_parameters=False),
+        # strategy=L.strategies.DDPStrategy(find_unused_parameters=False),
         deterministic=True,
         callbacks=[
             TQDMProgressBar(),
