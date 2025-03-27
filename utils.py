@@ -10,11 +10,12 @@ from tqdm import tqdm
 from time import time
 
 class SurrogateDataset(Dataset):
-    def __init__(self, input_path,target_path,in_param,out_param):
+    def __init__(self, input_path,target_path,in_param,out_param,swap):
         # Filename with target values (3D values)
         self.target_p = target_path
         # Filename with input values (3D)
         self.input_p = input_path
+        self.swap = swap
         # Creates array of all training images
         self.input_vals, self.target_vals = create_training_data_array(self.target_p,self.input_p,in_param,out_param)
 
@@ -22,12 +23,108 @@ class SurrogateDataset(Dataset):
         return len(self.input_vals)
 
     def __getitem__(self, idx):
-        inputs = torch.tensor(self.input_vals[idx])
-        targets = torch.tensor(self.target_vals[idx])
+
+        targets = torch.tensor(self.input_vals[idx])
+        inputs = torch.tensor(self.target_vals[idx])
+
+        if self.swap:
+            perm = np.random.permutation(3)
+            inputs,targets = self._permute_micro_params(inputs,targets,perm)
 
         return inputs, targets
 
+    def _permute_micro_params(self, in_micros,out_micros, perm):
+        """
+        Adjusts the micro_params order according to the label swap.
+        
+        Args:
+            in_micros (Tensor): 1D tensor of 13 elements.
+            out_micros (Tensor): 1D tensor of 15 elements.
+            perm (Tensor): Permutation of [0, 1, 2] → new order.
+        
+        Returns:
+            Tensor: Permuted micro_params with consistent label mapping.
+        """
+        # Map old labels {0, 1, 2} to {1, 2, 3}
+        label_map = {0: 1, 1: 2, 2: 3}
+        perm_map = {label_map[old]: label_map[new] for old, new in zip((0,1,2), perm.tolist())}
 
+        # Flip the OUTPUT microstructure characteristics
+
+        # Extract groups from out_micros
+        out_first_group = out_micros[0:3]
+        out_second_group = out_micros[3:6]
+        out_third_group = out_micros[6:9]
+        out_fourth_group = out_micros[9:12]  # Do not change
+        out_relation_group = out_micros[12:15]
+
+        # Permute the first three groups based on new label order
+        order = [perm_map[1] - 1, perm_map[2] - 1, perm_map[3] - 1]
+        out_permuted_first = out_first_group[order]
+        out_permuted_second = out_second_group[order]
+        out_permuted_third = out_third_group[order]
+
+
+        if order[0] == 0:
+            if order[1] == 1:
+                p_order = [0,1,2]
+            else:
+                p_order = [1,0,2]
+        elif order[0] == 1:
+            if order[1] == 0:
+                p_order = [0,2,1]
+            else:
+                p_order = [2,0,1]
+        else:
+            if order[1] == 0:
+                p_order = [1,2,0]
+            else:
+                p_order = [2,1,0]
+
+        out_permuted_relation = out_relation_group[p_order]
+
+
+        # Flip the INPUT microstructure characteristics
+
+        # Extract groups from out_micros
+        in_first_group = in_micros[0:3] # VFs
+        in_relation_group = in_micros[3:6] # ISAs
+        in_second_group = in_micros[6:9] # Particle diameters
+        in_third_group = in_micros[9:12] # STDs
+        in_fourth_group = [in_micros[12]] # TPB
+        
+
+        # Permute the first three groups based on new label order
+        order = [perm_map[1] - 1, perm_map[2] - 1, perm_map[3] - 1]
+        in_permuted_first = in_first_group[order]
+        in_permuted_second = in_second_group[order]
+        in_permuted_third = in_third_group[order]
+
+
+        if order[0] == 0:
+            if order[1] == 1:
+                p_order = [0,1,2]
+            else:
+                p_order = [1,0,2]
+        elif order[0] == 1:
+            if order[1] == 0:
+                p_order = [0,2,1]
+            else:
+                p_order = [2,0,1]
+        else:
+            if order[1] == 0:
+                p_order = [1,2,0]
+            else:
+                p_order = [2,1,0]
+
+        out_permuted_relation = out_relation_group[p_order]
+        in_permuted_relation = in_relation_group[p_order]
+
+        output_perm = torch.cat([out_permuted_first, out_permuted_second, out_permuted_third, out_fourth_group, out_permuted_relation])
+        input_perm = torch.cat([in_permuted_first, in_permuted_relation,in_permuted_second, in_permuted_third, in_fourth_group])
+
+        # Concatenate all modified groups
+        return input_perm,output_perm
 
 def create_training_data_array(target_p,input_p,in_param,out_param):
     

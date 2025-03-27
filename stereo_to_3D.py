@@ -31,6 +31,9 @@ def parseargs():
     p.add_argument("-pin","-params_in",type=int,nargs='+',default=[0,1,2,3,4,5,6,7,8,9],help='Column indexes for characteristics to train on. Should be formatted as a list of integers seperated by a single space ' '.')
     p.add_argument("-pout","-params_out",type=int,nargs='+',default=[0,1,2,3,4,5,6,7,8,9,10,11,12],help='Column indexes for characteristics to train on. Should be formatted as a list of integers seperated by a single space ' '.')
     p.add_argument("-g","-gamma",type=float,default=0.9)
+    p.add_argument("-c","-checkpoint",type=str,default=None)
+    p.add_argument("-e","-epochs",type=int,default=1000)
+    p.add_argument("-s","-swap",type=bool,default=True)
 
     args = p.parse_args()
     
@@ -44,7 +47,7 @@ warnings.filterwarnings(
 )
 
 class stereo_to_3D(L.LightningModule):
-    def __init__(self,arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint):
+    def __init__(self,arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,swap):
         super().__init__()
 
         self.target_path = target_path
@@ -56,6 +59,7 @@ class stereo_to_3D(L.LightningModule):
         self.b_size = b_size
         self.val_split = val_split
         self.checkpoint = checkpoint
+        self.swap = swap
         
         # Initialize mode using Module class
         self.model = surrogate_arch_mod(len(self.inparams),len(self.outparams),self.arch_string)
@@ -93,7 +97,7 @@ class stereo_to_3D(L.LightningModule):
     def setup(self, stage=None):
         # Split the dataset for training and validation
         
-        full_dataset = SurrogateDataset(self.input_path, self.target_path,self.inparams,self.outparams)
+        full_dataset = SurrogateDataset(self.input_path, self.target_path,self.inparams,self.outparams,self.swap)
 
         val_size = int(self.val_split * len(full_dataset))
         train_size = len(full_dataset) - val_size
@@ -104,19 +108,19 @@ class stereo_to_3D(L.LightningModule):
 
     def train_dataloader(self):
         # Training data loader
-        return DataLoader(self.train_dataset, batch_size=self.b_size,shuffle=True,num_workers=2)
+        return DataLoader(self.train_dataset, batch_size=self.b_size,shuffle=True,num_workers=8,persistent_workers=True)
 
     def val_dataloader(self):
         # Validation data loader
-        return DataLoader(self.val_dataset, batch_size=self.b_size,num_workers=2)
+        return DataLoader(self.val_dataset, batch_size=self.b_size,num_workers=4,persistent_workers=True)
 
 
-def main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,n_epochs,do_soft):
+def main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,n_epochs,do_soft,swap):
 
     seed_everything(SEED, workers=True)
 
     # Initialize model and dataloader classes
-    model = stereo_to_3D(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint)
+    model = stereo_to_3D(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,swap)
 
     # Checkpoints the model for best validation loss
     best_callback = ModelCheckpoint(
@@ -139,7 +143,7 @@ def main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_s
 
     # Implement model training
     trainer = Trainer(
-        default_root_dir='./results',
+        default_root_dir='./resultsANN',
         max_epochs=n_epochs,
         # set this to auto when GPU available
         accelerator="auto",
@@ -172,13 +176,14 @@ if __name__ == '__main__':
     learning_rate = 1.0e-4
     b_size = 32
     val_split = 0.2
-    checkpoint = None
-    n_epochs = 1000
+    checkpoint = args.c
+    n_epochs = args.e
     do_soft = False
     fine_tune = False
     loss_func = args.lf
     gamma = args.g
+    swap = args.s
 
-    main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,n_epochs,do_soft)
+    main(arch_string,target_path,input_path,inparams,outparams,learning_rate,b_size,val_split,checkpoint,n_epochs,do_soft,swap)
 
 

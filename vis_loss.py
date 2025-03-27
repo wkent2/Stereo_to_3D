@@ -43,7 +43,7 @@ def average_values_by_key(list1, list2):
 
 
 
-DIR_PATH = './results/lightning_logs/version_6'
+DIR_PATH = './results/lightning_logs/version_10'
 
 data = pd.read_csv(os.path.join(DIR_PATH,'metrics.csv'),header=0)
 
