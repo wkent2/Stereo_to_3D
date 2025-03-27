@@ -89,16 +89,14 @@ class SurrogateDataset(Dataset):
         # Extract groups from out_micros
         in_first_group = in_micros[0:3] # VFs
         in_relation_group = in_micros[3:6] # ISAs
-        in_second_group = in_micros[6:9] # Particle diameters
-        in_third_group = in_micros[9:12] # STDs
-        in_fourth_group = [in_micros[12]] # TPB
+        in_second_group = in_micros[6:9] # davgs
+        in_third_group = [in_micros[10]] # TPB
         
 
         # Permute the first three groups based on new label order
         order = [perm_map[1] - 1, perm_map[2] - 1, perm_map[3] - 1]
         in_permuted_first = in_first_group[order]
         in_permuted_second = in_second_group[order]
-        in_permuted_third = in_third_group[order]
 
 
         if order[0] == 0:
@@ -121,7 +119,7 @@ class SurrogateDataset(Dataset):
         in_permuted_relation = in_relation_group[p_order]
 
         output_perm = torch.cat([out_permuted_first, out_permuted_second, out_permuted_third, out_fourth_group, out_permuted_relation])
-        input_perm = torch.cat([in_permuted_first, in_permuted_relation,in_permuted_second, in_permuted_third, in_fourth_group])
+        input_perm = torch.cat([in_permuted_first, in_permuted_relation,in_permuted_second, in_permuted_third])
 
         # Concatenate all modified groups
         return input_perm,output_perm
