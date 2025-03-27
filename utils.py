@@ -148,7 +148,7 @@ def create_training_data_array(target_p,input_p,in_param,out_param):
         for j in range(len(in_param)):
             input_data[i,j] = input_df[input_df.keys()[in_param[j]]][index_of_row]
         for j in range(len(out_param)): 
-            ind_npy = index_of_row[0:-2]
+            # ind_npy = index_of_row[0:-2]
             target_data[i,j] = target_df[target_df.keys()[out_param[j]]][ind_npy]
 
 
