@@ -31,6 +31,7 @@ def parseargs():
     p.add_argument('-inp',type=str,default=None,help="Option to test different input data")
     p.add_argument('-outp',type=str,default=None,help="Option to plot different output data.")
     p.add_argument('-s',type=int,default=100,help="Random seed")
+    p.add_argument('-swap',type=bool,default=False,help="Whether or not to phase swap")
 
     args = p.parse_args()
     
@@ -113,7 +114,8 @@ if __name__ == "__main__":
     full_dataset = SurrogateDataset(hparams['input_path'], 
                                     hparams['target_path'],
                                     hparams['inparams'],
-                                    hparams['outparams'])
+                                    hparams['outparams'],
+                                    args.swap)
 
 
 
