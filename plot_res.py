@@ -26,10 +26,10 @@ from stereo_to_3D import stereo_to_3D
 def parseargs():
     p = argparse.ArgumentParser(description="Plots results from ANN training")
     p.add_argument('version',type=int,help="training version")
-    p.add_argument('-r',type=str,default="./results",help="folder containing all training results")
+    p.add_argument('-r',type=str,default="./resultsANN",help="folder containing all training results")
     p.add_argument('-b',type=bool,default=True,help="Whether to plot the best or the last checkpoint")
-    p.add_argument('-in',type=str,default=None,help="Option to test different input data")
-    p.add_argument('-out',type=str,default=None,help="Option to plot different output data.")
+    p.add_argument('-inp',type=str,default=None,help="Option to test different input data")
+    p.add_argument('-outp',type=str,default=None,help="Option to plot different output data.")
     p.add_argument('-s',type=int,default=100,help="Random seed")
 
     args = p.parse_args()
@@ -99,6 +99,14 @@ if __name__ == "__main__":
 
     # Applies random seed to everything
     seed_everything(args.s, workers=True)
+
+    # Sets new input and output 
+    if args.inp:
+        check_file_exists(args.inp,f"Error: Can't find input file")
+        hparams['input_path'] = args.inp
+    if args.outp:
+        check_file_exists(args.outp,f"Error: Can't find output file")
+        hparams['target_path'] = args.outp
 
 
     print("Constructing dataset")
