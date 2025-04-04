@@ -137,7 +137,7 @@ if __name__ == "__main__":
     chk_path = get_checkpoint_path(path_to_res,args.b)
 
     # Initialize model and dataloader classes
-    model = stereo_to_3D.load_from_checkpoint(chk_path)
+    model = stereo_to_3D.load_from_checkpoint(chk_path,swap=args.swap)
 
     # Figures out whether or not to use CPU or GPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
